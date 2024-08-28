@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       title: "Surjo",
       theme: ThemeData(
         colorScheme:
-        ColorScheme.fromSeed(seedColor: Colors.cyanAccent.shade100),
+            ColorScheme.fromSeed(seedColor: Colors.cyanAccent.shade100),
         useMaterial3: true,
       ),
       home: const Homepage(),
@@ -32,7 +32,8 @@ class Homepage extends StatefulWidget {
 class Homapagestate extends State<Homepage> {
   var a = TextEditingController();
   var b = TextEditingController();
-  var result = "0";
+  final GlobalKey<FormState> _globalKey = GlobalKey<FormState>();
+  var result = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -50,160 +51,217 @@ class Homapagestate extends State<Homepage> {
           ),
         ),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              const SizedBox(
-                child: Text(
-                  "Simple Calculator",
-                  style: TextStyle(
-                    fontSize: 30,
-                    decoration: TextDecoration.underline,
-                    fontFamily: "Schuyler",
+          child: Form(
+            key: _globalKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    child: Text(
+                      "Simple Calculator",
+                      style: TextStyle(
+                        fontSize: 25,
+                        decoration: TextDecoration.underline,
+                        fontFamily: "Schuyler",
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    width: 150,
-                    child: TextField(
-                      controller: a,
-                      style: const TextStyle(fontSize: 25),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        label: const Text(
-                          "Enter a number: ",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 150,
-                    child: TextField(
-                      controller: b,
-                      style: const TextStyle(fontSize: 25),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        label: const Text(
-                          "Enter a number: ",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    height: 50,
-                    width: 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        var ai = double.parse(a.text.toString());
-                        var bi = double.parse(b.text.toString());
-
-                        result = "${ai + bi}";
-                        setState(() {});
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyanAccent.shade100,
-                      ),
-                      child: const Text(
-                        "+",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 30,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    width: 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        var ai = double.parse(a.text.toString());
-                        var bi = double.parse(b.text.toString());
-
-                        result = "${ai - bi}";
-                        setState(() {});
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyanAccent.shade100,
-                      ),
-                      child: const Text(
-                        "-",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 30,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    width: 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        var ai = double.parse(a.text.toString());
-                        var bi = double.parse(b.text.toString());
-
-                        result = "${ai * bi}";
-                        setState(() {});
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyanAccent.shade100,
-                      ),
-                      child: const Text(
-                        "X",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    width: 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        var ai = double.parse(a.text.toString());
-                        var bi = double.parse(b.text.toString());
-
-                        result = "${ai / bi}";
-                        setState(() {});
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.cyanAccent.shade100,
-                      ),
-                      child: const Text(
-                        "/",
-                        style: TextStyle(color: Colors.black, fontSize: 30),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                "Result: $result",
-                style: const TextStyle(fontSize: 30),
-              ),
-            ],
+                _buildTextFormFields(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _onAddOperation(),
+                    _onSubstractOperation(),
+                    _onMultiplicationOperation(),
+                    _onDivideOperation(),
+                  ],
+                ),
+                _buildResult(),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildTextFormFields() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        SizedBox(
+          width: 150,
+          child: TextFormField(
+            controller: a,
+            validator: (String? validator) {
+              if (validator == null || validator.isEmpty) {
+                return "Enter first number";
+              }
+              return null;
+            },
+            style: const TextStyle(fontSize: 16),
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              label: const Text(
+                "Enter first number: ",
+                style: TextStyle(fontSize: 12),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 150,
+          child: TextFormField(
+            controller: b,
+            validator: (String? validator) {
+              if (validator == null || validator.isEmpty) {
+                return "Enter second\nnumber";
+              }
+              return null;
+            },
+            style: const TextStyle(fontSize: 16),
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              label: const Text(
+                "Enter second number: ",
+                style: TextStyle(fontSize: 12),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResult() {
+    return Text(
+      "Result: ${result.toStringAsFixed(2)}",
+      style: const TextStyle(fontSize: 30),
+    );
+  }
+
+  SizedBox _onDivideOperation() {
+    return SizedBox(
+      height: 50,
+      width: 80,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_globalKey.currentState!.validate()) {
+            var ai = double.tryParse(a.text.toString()) ?? 0;
+            var bi = double.tryParse(b.text.toString()) ?? 0;
+
+            result = ai / bi;
+            setState(() {});
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.cyanAccent.shade100,
+        ),
+        child: const Text(
+          "/",
+          style: TextStyle(color: Colors.black, fontSize: 30),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _onMultiplicationOperation() {
+    return SizedBox(
+      height: 50,
+      width: 80,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_globalKey.currentState!.validate()) {
+            var ai = double.tryParse(a.text.toString()) ?? 0;
+            var bi = double.tryParse(b.text.toString()) ?? 0;
+
+            result = ai * bi;
+            setState(() {});
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.cyanAccent.shade100,
+        ),
+        child: const Text(
+          "X",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _onSubstractOperation() {
+    return SizedBox(
+      height: 50,
+      width: 80,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_globalKey.currentState!.validate()) {
+            var ai = double.tryParse(a.text.toString()) ?? 0;
+            var bi = double.tryParse(b.text.toString()) ?? 0;
+
+            result = ai - bi;
+            setState(() {});
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.cyanAccent.shade100,
+        ),
+        child: const Text(
+          "-",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 30,
+          ),
+        ),
+      ),
+    );
+  }
+
+  SizedBox _onAddOperation() {
+    return SizedBox(
+      height: 50,
+      width: 80,
+      child: ElevatedButton(
+        onPressed: () {
+          if (_globalKey.currentState!.validate()) {
+            var ai = double.tryParse(a.text.toString()) ?? 0;
+            var bi = double.tryParse(b.text.toString()) ?? 0;
+
+            result = ai + bi;
+            setState(() {});
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.cyanAccent.shade100,
+        ),
+        child: const Text(
+          "+",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 30,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    a.dispose();
+    b.dispose();
+    super.dispose();
   }
 }
